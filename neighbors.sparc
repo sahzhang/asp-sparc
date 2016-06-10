@@ -1,0 +1,28 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Template for a SPARC file
+%% Author: 
+%% Description:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sorts
+    #state = {tx,co,nm}.
+    #colors = {r, g ,b}.
+predicates
+    % neigbhors(X,Y) denotes that state X neighbors state Y
+    neighbors(#state,#state).
+    % color(C,S) denotes that color of state S is C
+    color(#colors,#state).
+    
+rules
+    neighbors(tx,co).
+    neighbors(co,nm).
+    neighbors(tx,nm).
+    neighbors(X,Y) :- neighbors(Y,X).
+    % color rules
+    % two neighboring states can't have the same color
+    :- neighbors(X,Y), color(Cx, X), color(Cy,Y), Cy = Cx.
+    % there is a color for a state.
+    color(r,S) | color(g, S) | color(b,S).
+
+display
+    neighbors(tx,X).
