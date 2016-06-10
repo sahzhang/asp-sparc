@@ -1,0 +1,36 @@
+% Additional Exercise for Section 5.5 -- Indirect Exceptions to Defaults 
+
+% Write a program with consistency restoring rules
+% representing the following information:
+% "Cars normally work; in rare cases, a car does not work.
+% Working cars have working engines. 
+% The engine of John's car does not work."
+% Make sure that your program entails that John's car does not work but 
+% Mary's car does.
+
+
+sorts
+	#person = {john,mary}.
+	#car = {c1,c2}.
+	#engine = e(#car).
+	#thing = #car + #engine.
+	#default = d(#car).
+
+
+
+predicates
+	ab(#default).
+	works(#thing).
+	owns(#person,#car).
+
+rules
+	
+	owns(john,c1).
+	owns(mary,c2).
+	-works(e(c1)).
+	works(X) :- #car(X), not ab(d(X)), not -works(X).
+	-works(X) :+ #car(X).
+	works(e(X)) :- #car(X), works(X).
+
+display
+	owns(john,c1).
