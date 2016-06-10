@@ -1,0 +1,72 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sorts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	#blocks = {a,b,c}.
+	#loc = #blocks + {t}.
+	#action = put(#blocks,#loc).
+	#fluent = on(#blocks,#loc).
+	#steps = 0..3.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+predicates
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	holds(#fluent,#steps).
+	occurs(#action,#steps).
+	goal(#steps).
+	success().
+	something_happened(#steps).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+rules
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	holds(on(a,t),0).
+	holds(on(b,a),0).
+	holds(on(c,t),0).
+	occurs(put(b,t),0).
+	%%%%%%%%%
+	%basic motion
+	%%%%%%%%%
+
+	% direct effect
+	holds(on(B,L),I) :- occurs(put(B,L),I-1).
+
+	%static constant
+	-holds(on(B,L1),I) :- holds(on(B,L2),I), L2!=L1.
+
+	%inertia axion
+	holds(F,I) :- holds(F,I-1), not -holds(F,I).
+	-holds(F,I) :- -holds(F,I-1), not holds(F,I).
+
+	%impossibility
+	-occurs(put(B1,B2),I) :- holds(on(B3,B2),I), #blocks(B2).
+
+	%%%%%%%%%
+	%planning
+	%%%%%%%%%
+
+	%goal
+	goal(I) :- holds(on(a,c),I), holds(on(b,a),I).
+
+	%success
+	success :- goal(I).
+	:- not success.
+
+	%occurs
+	occurs(A,I) | -occurs(A,I) :- not goal(I).
+	:- occurs(A,I), occurs(A2,I), A != A2.
+
+
+	%% An action occurs at each step before the goal is achieved
+
+	something_happened(I) :- occurs(A,I).
+
+	:- goal(I), goal(I-1),
+   		J < I,
+   		not something_happened(J).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+display
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	occurs(A,I).              
+
